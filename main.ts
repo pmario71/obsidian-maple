@@ -15,7 +15,6 @@ export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 	_updateRecorder: UpdateRecorder;
 
-
 	async onload() {
 		await this.loadSettings();
 
@@ -37,10 +36,11 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: "open-sample-modal-simple",
-			name: "Open sample modal (simple)",
+			id: "obs-plugin-dump",
+			name: "Dump file records",
 			callback: () => {
-				new SampleModal(this.app).open();
+				// new SampleModal(this.app).open();
+				this._updateRecorder.dumpRecords();
 			},
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -83,108 +83,17 @@ export default class MyPlugin extends Plugin {
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-			console.log("click", evt);
-		});
+		// this.registerDomEvent(document, "click", (evt: MouseEvent) => {
+		// 	console.log("click", evt);
+		// });
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-		);
+		// this.registerInterval(
+		// 	window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
+		// );
 	}
 
 	onunload() {}
-
-	// -------------------------------------------
-	// private onFileOpen(openedFile: string): EventRef {
-	private readonly onFileOpen = async (openedFile: TFile): Promise<void> => {
-		console.log("File opened:", openedFile);
-
-		// You can call updateData here if you want to update data when a file is opened
-		// this.updateData(arg0);
-		if (!openedFile) {
-			return;
-		}
-
-		this.updateData(openedFile);
-
-		// Update the view if there is one.
-		// We redraw the leaf to handle active file highlighting.
-		// const leaf = this.app.workspace
-		// 	.getLeavesOfType(RecentFilesListViewType)
-		// 	.first();
-		// if (leaf && leaf.view instanceof RecentFilesListView) {
-		// 	leaf.view.redraw();
-		// }
-	};
-
-	// private readonly update = async (openedFile: TFile): Promise<void> => {
-	// 	if (!openedFile) {
-	// 		return;
-	// 	}
-
-	// 	await this.updateData(openedFile);
-	// };
-
-	private readonly updateData = async (file: TFile): Promise<void> => {
-		// func only called once when file is opened
-		// TODO: register a 2nd eventhandler that captures file changes
-
-		console.log("Updating data for file:", file);
-
-		// const lengthBefore = this.data.recentFiles.length;
-		// this.data.recentFiles = this.data.recentFiles.filter(
-		// 	(currFile) => currFile.path !== file.path
-		// );
-
-		// let needsSave = lengthBefore !== this.data.recentFiles.length;
-
-		// if (this.shouldAddFile(file)) {
-		// 	this.data.recentFiles.unshift({
-		// 		basename: file.basename,
-		// 		path: file.path,
-		// 	});
-		// 	needsSave = true;
-		// }
-
-		// if (needsSave) {
-		// 	await this.pruneLength(); // Handles the save
-		// }
-	};
-
-	private readonly handleRename = async (
-		file: TAbstractFile,
-		oldPath: string
-	): Promise<void> => {
-		console.log("Renaming file (new -> old)", file, oldPath);
-
-		// const entry = this.data.recentFiles.find(
-		// 	(recentFile) => recentFile.path === oldPath
-		// );
-		// if (entry) {
-		// 	entry.path = file.path;
-		// 	entry.basename = this.trimExtension(file.name);
-		// 	this.view?.redraw();
-		// 	await this.saveData();
-		// }
-	};
-
-	private readonly handleDelete = async (
-		file: TAbstractFile
-	): Promise<void> => {
-		console.log("file deleted:", file);
-
-		// const beforeLen = this.data.recentFiles.length;
-		// this.data.recentFiles = this.data.recentFiles.filter(
-		// 	(recentFile) => recentFile.path !== file.path
-		// );
-
-		// if (beforeLen !== this.data.recentFiles.length) {
-		// 	this.view?.redraw();
-		// 	await this.saveData();
-		// }
-	};
-	// -------------------------------------------
 
 	async loadSettings() {
 		this.settings = Object.assign(
@@ -271,6 +180,26 @@ class UpdateRecorder {
 		this._plugin.registerEvent(this._plugin.app.workspace.on("file-open", this.onFileOpen));
 	}
 
+	public dumpRecords(): string {
+		if (this._fileRecordMap.size === 0) {
+			console.log("No file records available.");
+			return "No file records available.";
+		}
+
+		// what is the stringbuilder equivalent in JS?
+		const lines: string[] = [];
+		lines.push("Dumping file records:");
+		
+		this._fileRecordMap.forEach((record, path) => {
+			lines.push(`Path: ${path}, Record: ${record.toString()}`);
+		});
+		
+		const output = lines.join('\n');
+		console.log(output);
+		
+		return output;
+	}
+
 	// private onFileOpen(openedFile: string): EventRef {
 	private readonly onFileOpen = async (openedFile: TFile): Promise<void> => {
 		
@@ -315,7 +244,7 @@ class UpdateRecorder {
 	};
 }
 
-class FileRecord {
+export class FileRecord {
 	private _file: TAbstractFile;
 	private _modType: FileModificationType = FileModificationType.CREATED;
 	
@@ -335,7 +264,7 @@ class FileRecord {
 	}
 }
 
-enum FileModificationType {
+export enum FileModificationType {
 	CREATED = "created",
 	UPDATED = "updated",
 	DELETED = "deleted"	
