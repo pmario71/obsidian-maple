@@ -1,11 +1,10 @@
 {
 	"id": "obsidian-instant-coffee",
-	"name": "Instant Coffee",
+	"name": "Maple plugin",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Testing some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Synchronization and utility functionality.",
+	"author": "Mario Plendl",
+	"authorUrl": "https://github.com/pmario71/obsidian-maple",
 	"isDesktopOnly": false
 }

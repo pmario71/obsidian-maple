@@ -3,7 +3,9 @@ import { describe, it, expect } from '@jest/globals';
 
 // Import FileRecord and FileModificationType from main.ts
 // import '../main'; // Ensures main.ts is loaded for type augmentation if needed
-import { FileRecord, FileModificationType  } from '../main'; // Adjust the import path as necessary
+import { FileModificationType } from 'DataModel/FileModificationType';
+import { FileRecord } from 'DataModel/FileRecord';
+import { TAbstractFile } from 'obsidian';
 
 
 describe('FileRecord', () => {
