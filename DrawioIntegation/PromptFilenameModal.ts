@@ -14,19 +14,34 @@ export class PromptFilenameModal extends Modal {
 		const { contentEl } = this;
 		contentEl.createEl("h2", { text: "Filename for drawio file:" });
 
-		new Setting(contentEl).setName("Input").addText((text) =>
-			text.onChange(async (value) => {
-				// add validation to ensure the filen does not yet exist
-				const normalizedValue = StringHelper.NormalizePath(value);
+        let inputEl: HTMLInputElement;
 
-				if (normalizedValue.length === 0) {
-					text.setPlaceholder("Filename cannot be empty");
-					return;
-				}
+		new Setting(contentEl)
+            .setName("Input")
+            .addText((text) => {
+                inputEl = text.inputEl;
+                text.onChange(async (value) => {
+                    // add validation to ensure the filen does not yet exist
+                    const normalizedValue = StringHelper.NormalizePath(value);
 
-				this.result = value;
-			})
-		);
+                    if (normalizedValue.length === 0) {
+                        text.setPlaceholder("Filename cannot be empty");
+                        return;
+                    }
+
+                    this.result = value;
+                });
+            
+                // Submit on Enter key
+                inputEl.addEventListener('keydown', (event: KeyboardEvent) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        this.close();
+                        this.onSubmit(this.result);
+                    }
+                });
+            });
+
 
 		new Setting(contentEl).addButton((btn) =>
 			btn
