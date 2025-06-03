@@ -1,14 +1,17 @@
+import { DrawIOCommandBuilder } from 'DrawioIntegation/DrawIOCommandBuilder';
 import { App, FileSystemAdapter, normalizePath, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import path from 'path';
 import { UpdateRecorder } from 'Services/UpdateRecorder';
 
 // Remember to rename these classes and interfaces!
 
-interface CustomSyncPluginSettings {
+export interface CustomSyncPluginSettings {
 	_syncServerUrl_azure?: string; // Azure sync server URL
 	_azureToken: string;
 
 	_syncServerUrl_local?: string; // local sync server URL
+
+	_drawio_template?: string; // Path to the DrawIO template file
 }
 
 const DEFAULT_SETTINGS: CustomSyncPluginSettings = {
@@ -16,8 +19,13 @@ const DEFAULT_SETTINGS: CustomSyncPluginSettings = {
 }
 
 export default class CustomSyncPlugin extends Plugin {
-	settings: CustomSyncPluginSettings;
-	_updateRecorder: UpdateRecorder;
+	private _settings: CustomSyncPluginSettings;
+	private _updateRecorder: UpdateRecorder;
+
+	// Get configuration settings
+	public get Settings(): CustomSyncPluginSettings {
+		return this._settings;
+	}
 
 	async onload() {
 		await this.loadSettings();
@@ -61,7 +69,9 @@ export default class CustomSyncPlugin extends Plugin {
 				});
 			},
 		});
-
+		
+		// ===========================================================================================
+		DrawIOCommandBuilder.createCommand(this, this.app, this._settings);
 
 		// ===========================================================================================
 		this._updateRecorder = new UpdateRecorder(this);
@@ -75,7 +85,7 @@ export default class CustomSyncPlugin extends Plugin {
 	onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign(
+		this._settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
 			await this.loadData()
@@ -83,7 +93,7 @@ export default class CustomSyncPlugin extends Plugin {
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		await this.saveData(this._settings);
 	}
 }
 
@@ -106,9 +116,9 @@ class SampleSettingTab extends PluginSettingTab {
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter token")
-					.setValue(this.plugin.settings._azureToken)
+					.setValue(this.plugin._settings._azureToken)
 					.onChange(async (value) => {
-						this.plugin.settings._azureToken = value;
+						this.plugin._settings._azureToken = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -121,9 +131,24 @@ class SampleSettingTab extends PluginSettingTab {
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter a value for setting #2")
-					.setValue(this.plugin.settings._syncServerUrl_local || "")
+					.setValue(this.plugin._settings._syncServerUrl_local || "")
 					.onChange(async (value) => {
-						this.plugin.settings._syncServerUrl_local = value;
+						this.plugin._settings._syncServerUrl_local = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("DrawIO template file")
+			.setDesc(
+				"Path to the DrawIO template file used for new diagrams. If not set, the default template will be used."
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder("template.drawio.svg")
+					.setValue(this.plugin._settings._drawio_template || "")
+					.onChange(async (value) => {
+						this.plugin._settings._drawio_template = value;
 						await this.plugin.saveSettings();
 					})
 			);
