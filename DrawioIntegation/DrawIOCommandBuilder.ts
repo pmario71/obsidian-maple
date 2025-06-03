@@ -1,5 +1,4 @@
-import { App, FileSystemAdapter, MarkdownView, Notice, Plugin, } from 'obsidian';
-import path from 'path';
+import { App, MarkdownView, Notice, Plugin, } from 'obsidian';
 import { PromptFilenameModal } from './PromptFilenameModal';
 import { CustomSyncPluginSettings } from 'main';
 import { StringHelper } from './StringHelper';
@@ -58,6 +57,7 @@ export class DrawIOCommandBuilder {
                             // }
 
                             // todo: Open file in external default application
+                            
                             // const adapter = app.vault.adapter;
                             // if (!(adapter instanceof FileSystemAdapter)) {
                             //     new Notice("This command only works with the FileSystemAdapter.");
