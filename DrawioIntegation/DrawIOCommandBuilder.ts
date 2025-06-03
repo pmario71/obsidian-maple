@@ -31,17 +31,15 @@ export class DrawIOCommandBuilder {
                                 return;
                             }
 
-                            // ge
                             const templateFile = app.vault.getAbstractFileByPath(settings._drawio_template!);
 
-                            const x = await app.fileManager.getAvailablePathForAttachment(
-                                StringHelper.AppendDrawioFileExtension(filePath,settings._drawio_template!),
-                                folder.path);
+                            const targetFileName = await app.fileManager.getAvailablePathForAttachment(
+                                StringHelper.AppendDrawioFileExtension(filePath,settings._drawio_template!));
 
                             console.log("Template file:", templateFile);
-                            console.log("File path:", x);
+                            console.log("File path:", targetFileName);
 
-                            const newDrawioFile = await app.vault.copy(templateFile!, x);
+                            const newDrawioFile = await app.vault.copy(templateFile!, targetFileName);
 
                             // insert link to new file
                             const linkText = `![[${newDrawioFile.path}]]`;
@@ -59,15 +57,16 @@ export class DrawIOCommandBuilder {
                             //     return;
                             // }
 
-                            const adapter = app.vault.adapter;
-                            if (!(adapter instanceof FileSystemAdapter)) {
-                                new Notice("This command only works with the FileSystemAdapter.");
-                                return;
-                            }
-                            const vaultPath = adapter.getBasePath(); // This is safe after the cast
-                            const fullPath = path.join(vaultPath, newDrawioFile.path);
+                            // todo: Open file in external default application
+                            // const adapter = app.vault.adapter;
+                            // if (!(adapter instanceof FileSystemAdapter)) {
+                            //     new Notice("This command only works with the FileSystemAdapter.");
+                            //     return;
+                            // }
+                            // const vaultPath = adapter.getBasePath(); // This is safe after the cast
+                            // const fullPath = path.join(vaultPath, newDrawioFile.path);
 
-                            app.workspace.openLinkText(fullPath, newDrawioFile.path, false);
+                            // app.workspace.openLinkText(fullPath, newDrawioFile.path, false);
                         }).open();
                     },
                 });
