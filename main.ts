@@ -3,6 +3,7 @@ import { App, FileSystemAdapter, normalizePath, Notice, Plugin, PluginSettingTab
 import { exec } from 'child_process';
 import path from 'path';
 import { UpdateRecorder } from 'Services/UpdateRecorder';
+import { isDrawioFile, isRenderedDrawioFile } from 'DrawioIntegation/FileExt';
 
 // Remember to rename these classes and interfaces!
 
@@ -34,12 +35,12 @@ export default class CustomSyncPlugin extends Plugin {
         return this._settings;
     }
 
+    // todo: can be removed
     public ExpandTemplate(): string
     {
         // expand if relative path
-        const template = this._settings._drawio_template ?? "template.drawio.svg";
-
-        return (template && !path.isAbsolute(template)) ? path.join(this._pluginFolder, "templates", template) : template;
+        const template = this._settings._drawio_template ?? "Templates/template.drawio.svg";
+        return template;
     }
 
     async onload() {
@@ -54,7 +55,7 @@ export default class CustomSyncPlugin extends Plugin {
 
         await this.loadSettings();
 
-        // This adds a simple command that can be triggered anywhere
+        // ===========================================================================================
         this.addCommand({
             id: "obs-plugin-dump",
             name: "Dump file records",
@@ -90,8 +91,8 @@ export default class CustomSyncPlugin extends Plugin {
         this.registerEvent(
             this.app.workspace.on('file-menu', (menu: Menu, file: TFile) => {
                 if (!file) return;
-                // Match *.drawio or *.drawio.*
-                if (/\.drawio($|\.[^\\/]+$)/i.test(file.name)) {
+                // Match *.drawio or *.drawio.png/svg
+                if (isDrawioFile(file)) {
                     menu.addItem((item) => {
                         item.setTitle('Open in DrawIO Desktop')
                             .setIcon('popup-open')
@@ -196,24 +197,22 @@ class SampleSettingTab extends PluginSettingTab {
                     })
             );
 
+        const templatePath = 'templates/';
+        const drawioFiles = this.app.vault.getFiles()
+                                .filter(f => f.path.toLowerCase().contains(templatePath))
+                                .filter(f => isRenderedDrawioFile(f));
+
+        if (drawioFiles.length === 0) {
+            const fileExample = this.app.vault.getFiles().first()?.path || "n.a.";
+            new Notice("No drawio template files found in the /Templates folder. Please add at least one .drawio.svg|png file: " + fileExample);
+            return;
+        }
+
         new Setting(containerEl)
             .setName("DrawIO template file")
             .setDesc(
-                "Path to the DrawIO template file used for new diagrams. If not set, the default template will be used."
+                "Path to the DrawIO template file used for new diagrams (Typically under '/Templates/*.drawio.svg/png'). If not set, creating new drawio files will not work!"
             )
-            .addText((text) =>
-                text
-                    .setPlaceholder("template.drawio.svg")
-                    .setValue(this._settings._drawio_template || "")
-                    .onChange(async (value) => {
-                        this._settings._drawio_template = value;
-                        await this.plugin.saveSettings();
-                    })
-            );
-
-        const drawioFiles = this.app.vault.getFiles().filter(f => /\.drawio($|\.[^\\/]+$)/i.test(f.name));
-
-        new Setting(containerEl).setName("Dropdown")
             .addDropdown((dropdown) =>
             {
                 dropdown.setValue(this._settings._drawio_template || "");

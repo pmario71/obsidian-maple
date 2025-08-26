@@ -30,20 +30,8 @@ export class DrawIOCommandBuilder {
                     }
 
                     const templateFile = plugin.ExpandTemplate();
-                                        
+                    const sourceFile = app.vault.getAbstractFileByPath(templateFile);
                     
-                    const fp = `Templates/template.drawio.svg`;
-                    
-                    if (!app.vault.adapter.exists(fp)) {
-                        new Notice(`Template file not found through adapter: ${fp}`);
-                    }
-                    else
-                    {
-                        new Notice("Yuhu!");
-                    }
-                    
-                    const sourceFile = app.vault.getAbstractFileByPath(fp);
-                    // const xxx= app.vault.getFileByPath(templateFile); //".\\.obsidian\\plugins\\obsidian-maple\\templates\\template.drawio.svg"
                     if (!sourceFile) {
                         new Notice(`Template file not found: ${sourceFile}`);
                         return;
