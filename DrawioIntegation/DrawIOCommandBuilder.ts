@@ -1,7 +1,10 @@
-import { App, MarkdownView, Notice } from 'obsidian';
+import { App, FileSystemAdapter, MarkdownView, Menu, normalizePath, Notice, TFile } from 'obsidian';
 import { PromptFilenameModal } from './PromptFilenameModal';
 import CustomSyncPlugin, { CustomSyncPluginSettings } from 'main';
 import { StringHelper } from './StringHelper';
+import { isDrawioFile } from './FileExt';
+import path from 'path';
+import { exec } from 'child_process';
 
 export class DrawIOCommandBuilder {
 
@@ -75,6 +78,46 @@ export class DrawIOCommandBuilder {
                 }).open();
             },
         });
-    }
 
+        // ===========================================================================================
+        // Add context menu entry for drawio files
+        plugin.registerEvent(
+            app.workspace.on('file-menu', (menu: Menu, file: TFile) => {
+                if (!file) return;
+                // Match *.drawio or *.drawio.png/svg
+                if (isDrawioFile(file)) {
+                    menu.addItem((item) => {
+                        item.setTitle('Open in DrawIO Desktop')
+                            .setIcon('popup-open')
+                            .onClick(() => {
+                                const adapter = app.vault.adapter;
+                                if (!(adapter instanceof FileSystemAdapter)) {
+                                    new Notice('This command only works with the FileSystemAdapter.');
+                                    return;
+                                }
+                                const vaultPath = adapter.getBasePath();
+                                const fullPath = path.join(vaultPath, normalizePath(file.path));
+
+                                const drawioPath = plugin.Settings._drawio_executable;
+
+                                // If drawioPath is set, use it; otherwise, use system default
+                                if (drawioPath && drawioPath.trim() !== "") {
+                                    exec(`"${drawioPath}" "${fullPath}"`, (err) => {
+                                        if (err) {
+                                            new Notice('Failed to open in DrawIO Desktop: ' + err.message);
+                                        }
+                                    });
+                                } else {
+                                    exec(`start "" "${fullPath}"`, (err) => {
+                                        if (err) {
+                                            new Notice('Failed to open in DrawIO Desktop: ' + err.message);
+                                        }
+                                    });
+                                }
+                            });
+                    });
+                }
+            })
+        );
+    }
 }

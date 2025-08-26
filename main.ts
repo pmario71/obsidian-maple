@@ -1,9 +1,10 @@
 import { DrawIOCommandBuilder } from 'DrawioIntegation/DrawIOCommandBuilder';
-import { App, FileSystemAdapter, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TFile, Menu } from 'obsidian';
-import { exec } from 'child_process';
+import { isRenderedDrawioFile } from 'DrawioIntegation/FileExt';
+import { App, FileSystemAdapter, normalizePath, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+
 import path from 'path';
 import { UpdateRecorder } from 'Services/UpdateRecorder';
-import { isDrawioFile, isRenderedDrawioFile } from 'DrawioIntegation/FileExt';
+
 
 // Remember to rename these classes and interfaces!
 
@@ -86,46 +87,6 @@ export default class CustomSyncPlugin extends Plugin {
                 });
             },
         });
-
-        // Add context menu entry for drawio files
-        this.registerEvent(
-            this.app.workspace.on('file-menu', (menu: Menu, file: TFile) => {
-                if (!file) return;
-                // Match *.drawio or *.drawio.png/svg
-                if (isDrawioFile(file)) {
-                    menu.addItem((item) => {
-                        item.setTitle('Open in DrawIO Desktop')
-                            .setIcon('popup-open')
-                            .onClick(() => {
-                                const adapter = this.app.vault.adapter;
-                                if (!(adapter instanceof FileSystemAdapter)) {
-                                    new Notice('This command only works with the FileSystemAdapter.');
-                                    return;
-                                }
-                                const vaultPath = adapter.getBasePath();
-                                const fullPath = path.join(vaultPath, normalizePath(file.path));
-
-                                const drawioPath = this._settings._drawio_executable;
-
-                                // If drawioPath is set, use it; otherwise, use system default
-                                if (drawioPath && drawioPath.trim() !== "") {
-                                    exec(`"${drawioPath}" "${fullPath}"`, (err) => {
-                                        if (err) {
-                                            new Notice('Failed to open in DrawIO Desktop: ' + err.message);
-                                        }
-                                    });
-                                } else {
-                                    exec(`start "" "${fullPath}"`, (err) => {
-                                        if (err) {
-                                            new Notice('Failed to open in DrawIO Desktop: ' + err.message);
-                                        }
-                                    });
-                                }
-                            });
-                    });
-                }
-            })
-        );
         
         // ===========================================================================================
         DrawIOCommandBuilder.createCommand(this, this.app, this._settings);
