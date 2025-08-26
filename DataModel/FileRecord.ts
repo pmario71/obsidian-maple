@@ -1,4 +1,4 @@
-import { FileModificationType } from 'DataModel/FileModificationType';
+import { FileModificationType } from './FileModificationType';
 import { TAbstractFile } from 'obsidian';
 
 

@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-instant-coffee",
+	"id": "obsidian-maple",
 	"name": "Maple plugin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Synchronization and utility functionality.",
 	"author": "Mario Plendl",

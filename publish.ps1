@@ -1,0 +1,1 @@
+Copy-Item -Destination D:\Todo\Obsidian\SyncVault2\.obsidian\plugins\obsidian-maple\ -Force -Path @('main.js', 'manifest.json', 'styles.css')
