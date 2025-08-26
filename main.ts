@@ -36,6 +36,14 @@ export default class CustomSyncPlugin extends Plugin {
         return this._settings;
     }
 
+    public get TemplateFolder(): string {
+        let folder = this.app.vault.getFolderByPath( "zz Templates");
+        if (!folder) {
+            folder = this.app.vault.getFolderByPath( "Templates");
+        }
+        return folder?.path || "";
+    }
+
     // todo: can be removed
     public ExpandTemplate(): string
     {
@@ -158,14 +166,14 @@ class SampleSettingTab extends PluginSettingTab {
                     })
             );
 
-        const templatePath = 'templates/';
+        const templatePath = this.plugin.TemplateFolder.toLowerCase();
         const drawioFiles = this.app.vault.getFiles()
                                 .filter(f => f.path.toLowerCase().contains(templatePath))
                                 .filter(f => isRenderedDrawioFile(f));
 
         if (drawioFiles.length === 0) {
             const fileExample = this.app.vault.getFiles().first()?.path || "n.a.";
-            new Notice("No drawio template files found in the /Templates folder. Please add at least one .drawio.svg|png file: " + fileExample);
+            new Notice("No drawio template files found in the /(zz )Templates folder. Please add at least one .drawio.svg|png file: " + fileExample);
             return;
         }
 
