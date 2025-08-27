@@ -176,6 +176,14 @@ class SampleSettingTab extends PluginSettingTab {
             new Notice("No drawio template files found in the /(zz )Templates folder. Please add at least one .drawio.svg|png file: " + fileExample);
             return;
         }
+        // automatically set if only a single file exists (to avoid that the template cannot be set because the onChange() event does not fire.)
+        if (drawioFiles.length == 1) {
+            this._settings._drawio_template = drawioFiles[0].path;
+            
+            this.plugin.saveSettings().catch(err => {
+                console.error("Failed to save settings:", err);
+            });
+        }
 
         new Setting(containerEl)
             .setName("DrawIO template file")
