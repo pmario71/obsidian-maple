@@ -17,11 +17,11 @@ export class PromptFilenameModal extends Modal {
         let inputEl: HTMLInputElement;
 
 		new Setting(contentEl)
-            .setName("Input")
+            .setName("filename (without extension, .drawio.svg)")
             .addText((text) => {
                 inputEl = text.inputEl;
                 text.onChange(async (value) => {
-                    // add validation to ensure the filen does not yet exist
+                    // add validation to ensure the filename does not yet exist
                     const normalizedValue = StringHelper.NormalizePath(value);
 
                     if (normalizedValue.length === 0) {
