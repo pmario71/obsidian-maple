@@ -89,3 +89,37 @@ If you have multiple URLs, you can also do:
 ## API Documentation
 
 See https://github.com/obsidianmd/obsidian-api
+
+## Copilot skill for safe feature work
+
+This repository includes a local Copilot skill for implementing plugin features with minimal and safe changes:
+
+- Skill file: `.github/skills/obsidian-feature-safe-implementation/SKILL.md`
+- Use it when asking Copilot to add or modify plugin behavior.
+
+Example prompt:
+
+```text
+Use the obsidian-feature-safe-implementation skill to add <feature>.
+```
+
+The skill requires:
+
+- inspection of `manifest.json`, `versions.json`, `package.json`, and plugin source files,
+- a minimal API-safe design,
+- low `onload()` startup overhead,
+- migration-safe settings changes,
+- README usage updates,
+- manual validation steps for a test vault.
+
+## Manual validation in a test vault
+
+When validating a feature manually, use this checklist:
+
+1. Create a disposable test vault and install the plugin build into `.obsidian/plugins/obsidian-maple/`.
+2. Start Obsidian, enable the plugin, and confirm no startup notices or console errors.
+3. Open plugin settings and verify all existing settings still load and persist.
+4. Exercise the changed feature path and one unchanged command path.
+5. Reload Obsidian and verify settings/data survive restart (migration-safe behavior).
+6. If filesystem integration is involved, validate behavior on desktop with and without expected local paths.
+7. Review developer console for warnings/errors during startup and feature execution.
