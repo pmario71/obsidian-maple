@@ -3,6 +3,16 @@
 * implementing a custom synchronization of vault
 * utility functionality
 
+## Features
+
+### Deep Linking ("Get link")
+Generates Obsidian deep links (`obsidian://open?vault=...&file=...`) for sharing notes and specific headings in external documents (Word, Outlook, Teams, Confluence, PDFs, etc.):
+
+- **Editor Context Menu (on heading):** Right-click directly on any heading line (`# Heading`) and select **Get link**. Generates a link anchored to that heading (e.g. `obsidian://open?vault=MyVault&file=Projects/Architecture%23Design%20Decisions`).
+- **Editor Context Menu (on plain text):** Right-click anywhere else in a note and select **Get link**. Generates a note-level link (e.g. `obsidian://open?vault=MyVault&file=Projects/Architecture`).
+- **File Explorer Context Menu:** Right-click any markdown note in the file explorer and select **Get link** to copy its note-level URL.
+- **Command Palette:** Use the command `Get link for current note / heading` to copy the deep link for the active note or heading.
+
 ---
 
 # Obsidian Sample Plugin
@@ -119,7 +129,12 @@ When validating a feature manually, use this checklist:
 1. Create a disposable test vault and install the plugin build into `.obsidian/plugins/obsidian-maple/`.
 2. Start Obsidian, enable the plugin, and confirm no startup notices or console errors.
 3. Open plugin settings and verify all existing settings still load and persist.
-4. Exercise the changed feature path and one unchanged command path.
-5. Reload Obsidian and verify settings/data survive restart (migration-safe behavior).
-6. If filesystem integration is involved, validate behavior on desktop with and without expected local paths.
+4. Validate the **"Get link"** functionality:
+   - Create a note `Projects/Architecture.md` with headings `# Design Decisions` and normal paragraph text.
+   - Right-click on plain text $\rightarrow$ select **Get link** $\rightarrow$ paste clipboard $\rightarrow$ verify `obsidian://open?vault=<Vault>&file=Projects/Architecture`.
+   - Right-click on the `# Design Decisions` line $\rightarrow$ select **Get link** $\rightarrow$ paste clipboard $\rightarrow$ verify `obsidian://open?vault=<Vault>&file=Projects/Architecture%23Design%20Decisions`.
+   - In the File Explorer tree, right-click `Projects/Architecture` $\rightarrow$ select **Get link** $\rightarrow$ verify note-level link is copied.
+   - Click a generated link in an external application (browser or Word) to confirm Obsidian opens and navigates to the target note/heading.
+5. Exercise an unchanged command path (e.g. DrawIO insertion / copy file path).
+6. Reload Obsidian and verify settings/data survive restart (migration-safe behavior).
 7. Review developer console for warnings/errors during startup and feature execution.

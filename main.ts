@@ -4,6 +4,7 @@ import { App, FileSystemAdapter, normalizePath, Notice, Plugin, PluginSettingTab
 
 import path from 'path';
 import { UpdateRecorder } from 'Services/UpdateRecorder';
+import { LinkCommandBuilder } from 'Services/LinkCommandBuilder';
 
 
 // Remember to rename these classes and interfaces!
@@ -98,6 +99,9 @@ export default class CustomSyncPlugin extends Plugin {
         
         // ===========================================================================================
         DrawIOCommandBuilder.createCommand(this, this.app, this._settings);
+
+        // ===========================================================================================
+        LinkCommandBuilder.register(this, this.app);
 
         // ===========================================================================================
         this._updateRecorder = new UpdateRecorder(this);
