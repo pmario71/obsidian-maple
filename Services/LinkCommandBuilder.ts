@@ -3,6 +3,8 @@ import { LinkBuilder } from './LinkBuilder';
 import CustomSyncPlugin from 'main';
 
 export class LinkCommandBuilder {
+	private static readonly menuTitle = 'Get link';
+
 	public static register(plugin: CustomSyncPlugin, app: App): void {
 		// ===========================================================================================
 		// Context menu in Editor (distinguishes heading vs plain text)
@@ -20,7 +22,7 @@ export class LinkCommandBuilder {
 				const url = LinkBuilder.formatObsidianUrl(vaultName, file.path, heading);
 
 				menu.addItem((item) => {
-					item.setTitle('Get link')
+					item.setTitle(LinkCommandBuilder.menuTitle)
 						.setIcon('link')
 						.onClick(async () => {
 							try {
@@ -46,7 +48,7 @@ export class LinkCommandBuilder {
 				const url = LinkBuilder.formatObsidianUrl(vaultName, file.path);
 
 				menu.addItem((item) => {
-					item.setTitle('Get link')
+					item.setTitle(LinkCommandBuilder.menuTitle)
 						.setIcon('link')
 						.onClick(async () => {
 							try {
